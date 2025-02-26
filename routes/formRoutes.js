@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const FormData = require("../models/FormData");
 
-// Middleware to parse URL-encoded data (Webflow sends it this way)
+// Middleware to parse Webflow's form data
 router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
