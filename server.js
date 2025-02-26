@@ -10,24 +10,17 @@ app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB Atlas
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("✅ Connected to MongoDB Atlas");
-  } catch (error) {
-    console.error("❌ MongoDB Connection Error:", error);
-    process.exit(1); // Exit process if connection fails
-  }
-};
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-connectDB();
+mongoose.connection.on("connected", () => {
+  console.log("✅ Connected to MongoDB Atlas");
+});
 
-// Root Route - API Health Check
-app.get("/", (req, res) => {
-  res.send("API is running...");
+mongoose.connection.on("error", (err) => {
+  console.error("❌ MongoDB connection error:", err);
 });
 
 // Use Routes
