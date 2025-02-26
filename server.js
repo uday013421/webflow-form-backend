@@ -3,11 +3,19 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
+
+
+
 const formRoutes = require("./routes/formRoutes");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(cors({
+    origin: "*",  // Allow all origins (For testing, restrict later)
+    methods: "POST",
+    allowedHeaders: "Content-Type"
+  }));
 
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI, {
