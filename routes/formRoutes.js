@@ -2,31 +2,36 @@ const express = require("express");
 const router = express.Router();
 const FormData = require("../models/FormData");
 
-router.post("/", async (req, res) => {
+// Middleware to parse URL-encoded data (Webflow sends it this way)
+router.use(express.urlencoded({ extended: true }));
+router.use(express.json());
+
+router.post("/webhook", async (req, res) => {
     try {
-        console.log("Received Webflow Form Data:", req.body); // Debugging
+        console.log("🔹 Received Webflow Webhook Data:", req.body); // Debugging
 
-        // Webflow sends form data as `fields` object instead of `data`
-        const { fields } = req.body;
+        // Webflow sends data inside "data" object
+        const { data } = req.body;
+        
+        // Extract form fields properly
+        const name = data?.["fields[Name]"] || data?.name;
+        const email = data?.["fields[Email]"] || data?.email;
+        const message = data?.["fields[message]"] || data?.message;
 
-        if (!fields || !fields.Name || !fields.Email || !fields.message) {
+        if (!name || !email || !message) {
+            console.error("❌ Missing required fields:", req.body);
             return res.status(400).json({ error: "Missing required fields" });
         }
 
-        // Create a new entry with proper field extraction
-        const newEntry = new FormData({
-            name: fields.Name,
-            email: fields.Email,
-            message: fields.message,
-        });
-
+        // Save to MongoDB
+        const newEntry = new FormData({ name, email, message });
         await newEntry.save();
 
-        console.log("Saved to MongoDB:", newEntry);
-        res.status(200).json({ message: "Form submitted successfully" });
+        console.log("✅ Saved to MongoDB:", newEntry);
+        res.status(200).json({ message: "Form data saved successfully" });
     } catch (error) {
-        console.error("Error saving data:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error("❌ Error saving data:", error);
+        res.status(500).json({ error: "Error processing webhook data" });
     }
 });
 

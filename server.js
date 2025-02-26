@@ -7,14 +7,15 @@ const formRoutes = require("./routes/formRoutes");
 
 const app = express();
 
-// CORS Configuration (Restrict later for production)
+// CORS Configuration (Allow Webflow Webhooks)
 app.use(cors({
-    origin: "*",  // Change to specific origin in production
+    origin: "*", // Replace with Webflow domain in production
     methods: ["POST"],
     allowedHeaders: ["Content-Type"]
 }));
 
-// Middleware
+// Middleware to parse form data
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // MongoDB Atlas Connection
